@@ -27,13 +27,11 @@ type JetStream struct {
 
 // JetStreamConfig contains JetStream configuration parameters.
 type JetStreamConfig struct {
-	// Consume this subject
-	ConsumeSubject string
+	// Subscribe to this subject
+	Subject string
 	// Optional. If provided, queue group will be used.
 	ConsumerGroup string
 	// Produce into this subject
-	ProduceSubject string
-	// ReceiveChannelSize will prevent dropping messages caused by th slow consumer.
 	ReceiveChannelSize int
 	// How long to wait for ACK. If crossed, message will be redelivered. Default 60.s
 	AckWait time.Duration
@@ -75,13 +73,13 @@ func (b *JetStream) Sub(ctx context.Context) (<-chan broker.Message, error) { //
 
 	var err error
 
-	b.Debug(fmt.Sprintf("subscribe to subject: %s", b.config.ConsumeSubject))
+	b.Debug(fmt.Sprintf("subscribe to subject: %s", b.config.Subject))
 	if b.config.ConsumerGroup != "" {
-		sub, err = b.c.ChanQueueSubscribe(b.config.ConsumeSubject, b.config.ConsumerGroup, natsCh,
+		sub, err = b.c.ChanQueueSubscribe(b.config.Subject, b.config.ConsumerGroup, natsCh,
 			nats.ManualAck(), nats.AckWait(b.config.AckWait), nats.MaxDeliver(int(b.config.MaxRedeliveries)),
 			nats.DeliverNew())
 	} else {
-		sub, err = b.c.ChanSubscribe(b.config.ConsumeSubject, natsCh, nats.ManualAck(),
+		sub, err = b.c.ChanSubscribe(b.config.Subject, natsCh, nats.ManualAck(),
 			nats.AckWait(b.config.AckWait), nats.DeliverNew())
 	}
 
@@ -94,7 +92,7 @@ func (b *JetStream) Sub(ctx context.Context) (<-chan broker.Message, error) { //
 			select {
 			case msg := <-natsCh:
 				b.Debug(fmt.Sprintf("receive message from NATS subject %s: %s",
-					b.config.ConsumeSubject, string(msg.Data)))
+					b.config.Subject, string(msg.Data)))
 				messages <- broker.Message{
 					Data: msg.Data,
 					Ack: func() {
@@ -109,7 +107,7 @@ func (b *JetStream) Sub(ctx context.Context) (<-chan broker.Message, error) { //
 					},
 				}
 			case <-ctx.Done():
-				b.Debug(fmt.Sprintf("consuming from NATS subject %s done", b.config.ConsumeSubject))
+				b.Debug(fmt.Sprintf("consuming from NATS subject %s done", b.config.Subject))
 				if err := sub.Unsubscribe(); err != nil {
 					b.Debug(fmt.Sprintf("error: unsubscribe: %s", err))
 				}
@@ -130,8 +128,8 @@ func (b *JetStream) Sub(ctx context.Context) (<-chan broker.Message, error) { //
 
 // Pub implements broker.Broker interface.
 func (b *JetStream) Pub(data []byte) error {
-	b.Debug(fmt.Sprintf("publish to NATS subject %s: %s", b.config.ProduceSubject, string(data)))
-	_, err := b.c.Publish(b.config.ProduceSubject, data)
+	b.Debug(fmt.Sprintf("publish to NATS subject %s: %s", b.config.Subject, string(data)))
+	_, err := b.c.Publish(b.config.Subject, data)
 	if err != nil {
 		return fmt.Errorf("publish: %w", err)
 	}
