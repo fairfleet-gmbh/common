@@ -1,4 +1,4 @@
-module bitbucket.org/fairfleet/common/broker
+module github.com/fairfleet-gmbh/common/broker
 
 go 1.25.1
 

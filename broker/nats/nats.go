@@ -7,7 +7,7 @@ import (
 
 	"github.com/nats-io/nats.go"
 
-	"bitbucket.org/fairfleet/common/broker"
+	"github.com/fairfleet-gmbh/common/broker"
 )
 
 const (

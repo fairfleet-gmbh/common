@@ -8,7 +8,7 @@ import (
 	"sync"
 	"syscall"
 
-	"bitbucket.org/fairfleet/common/broker"
+	"github.com/fairfleet-gmbh/common/broker"
 )
 
 // Job defines common job methods.

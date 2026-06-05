@@ -8,7 +8,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/sqs"
 
-	"bitbucket.org/fairfleet/common/broker"
+	"github.com/fairfleet-gmbh/common/broker"
 )
 
 const (
