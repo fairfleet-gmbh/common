@@ -91,8 +91,8 @@ func (b *JetStream) Sub(ctx context.Context) (<-chan broker.Message, error) { //
 		for {
 			select {
 			case msg := <-natsCh:
-				b.Debug(fmt.Sprintf("receive message from NATS subject %s: %s",
-					b.config.Subject, string(msg.Data)))
+				b.Debug(fmt.Sprintf("receive message from NATS subject %s: %d bytes",
+					b.config.Subject, len(msg.Data)))
 				messages <- broker.Message{
 					Data: msg.Data,
 					Ack: func() {
@@ -128,7 +128,7 @@ func (b *JetStream) Sub(ctx context.Context) (<-chan broker.Message, error) { //
 
 // Pub implements broker.Broker interface.
 func (b *JetStream) Pub(data []byte) error {
-	b.Debug(fmt.Sprintf("publish to NATS subject %s: %s", b.config.Subject, string(data)))
+	b.Debug(fmt.Sprintf("publish to NATS subject %s: %d bytes", b.config.Subject, len(data)))
 	_, err := b.c.Publish(b.config.Subject, data)
 	if err != nil {
 		return fmt.Errorf("publish: %w", err)
