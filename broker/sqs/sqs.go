@@ -96,7 +96,7 @@ func (b *Queue) Sub(ctx context.Context) (<-chan broker.Message, error) {
 
 				b.Debug(fmt.Sprintf("received %d messages from SQS queue %s", len(out.Messages), b.config.QueueURL))
 				for _, msg := range out.Messages {
-					b.Debug(fmt.Sprintf("receive message from SQS queue %s: %s", b.config.QueueURL, *msg.Body))
+					b.Debug(fmt.Sprintf("receive message from SQS queue %s: %d bytes", b.config.QueueURL, len(*msg.Body)))
 					messages <- broker.Message{
 						Data: []byte(*msg.Body),
 						Ack: func() {
@@ -129,7 +129,7 @@ func (b *Queue) Sub(ctx context.Context) (<-chan broker.Message, error) {
 
 // Pub implements broker.Broker interface.
 func (b *Queue) Pub(data []byte) error {
-	b.Debug(fmt.Sprintf("publish to SQS queue %s: %s", b.config.QueueURL, string(data)))
+	b.Debug(fmt.Sprintf("publish to SQS queue %s: %d bytes", b.config.QueueURL, len(data)))
 	_, err := b.c.SendMessage(&sqs.SendMessageInput{
 		QueueUrl:    aws.String(b.config.QueueURL),
 		MessageBody: aws.String(string(data)),
